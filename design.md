@@ -26,38 +26,42 @@ complicated, it is a nightmare to maintain the Nginx configuration. For example:
 
 ## Use Case View
 
+```
        request     -----
  O   -----------> |     |
 -|-               |Nginx|
 / \  <----------- |     |
        conf info   -----
+```
 
 Especially, when Nginx is used as a proxy
 
 Online mode: Whether our module working or not, it should not impact on Nginx's normal function.
 
+```
                    -----
  O     request    |     |   request    ----------
 -|-  -----------> |Nginx| ----------> | Upstream |
 / \               |     |              ----------
                    -----
+```
 or
-
+```
        request     -----
  O   -----------> |     |   request    ----------
 -|-               |Nginx| ----------> | Upstream |
 / \  <----------- |     |              ----------
        conf info   -----
-
+```
 
 Developmend mode:
-
+```
        request     -----
  O   -----------> |     |   request    ----------
 -|-               |Nginx| -----X-----> | Upstream |
 / \  <----------- |     |              ----------
        conf info   -----
-
+```
 ## Logical View
 
 
