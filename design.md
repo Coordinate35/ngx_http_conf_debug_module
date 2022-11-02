@@ -9,7 +9,7 @@ complicated, it is a nightmare to maintain the Nginx configuration. For example:
    service down.
 2. It is hard to make sure your rewrite rules are well written.
 
-## Goals
+## Demand Analysis
 
 1. It help user debug nginx conf: find the location a request matched, or point
    out the url after rewrite
