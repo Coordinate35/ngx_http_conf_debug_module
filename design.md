@@ -54,12 +54,12 @@ or
        conf info   -----
 ```
 
-Developmend mode:
+Development mode:
 ```
        request     -----
- O   -----------> |     |   request    ----------
+ O   -----------> |     |   request     ----------
 -|-               |Nginx| -----X-----> | Upstream |
-/ \  <----------- |     |              ----------
+/ \  <----------- |     |               ----------
        conf info   -----
 ```
 ## Logical View
@@ -69,3 +69,6 @@ Developmend mode:
 
 
 ## Process View
+
+
+## Physical View
