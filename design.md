@@ -20,6 +20,8 @@ complicated, it is a nightmare to maintain the Nginx configuration. For example:
       without other dependency, espeically proxy scene
 3. It is easy to be integrate into an auto test platform for large scale 
    configuration management.
+4. Not to modify Nginx's official open source code for the convenience of adapting
+   to all version of Nginx.
 
 
 ## Use Case View
