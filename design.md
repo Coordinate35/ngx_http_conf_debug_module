@@ -11,6 +11,16 @@ complicated, it is a nightmare to maintain the Nginx configuration. For example:
 
 ## Goals
 
+1. It help user debug nginx conf: find the location a request matched, or point
+   out the url after rewrite
+2. Can be used in online environment and develop environment, and no need to 
+   build different binary:
+   1. When used in online environment, it make no difference to business request
+   2. When used in develop environment, it can debug the nginx configuration 
+      without other dependency, espeically proxy scene
+3. It is easy to be integrate into an auto test platform for large scale 
+   configuration management.
+
 
 ## Use Case View
 
