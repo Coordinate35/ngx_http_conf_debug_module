@@ -64,11 +64,68 @@ Development mode:
 ```
 ## Logical View
 
+The whole process of module must be:
+1. Find the correct config for current request matched
+2. Save the matching result
+3. Output conf message
 
-## Development View
+NGX_HTTP_ACCESS_PHASE is the best choice for ngx_http_conf_debug_module
+because:
+1. It may interrupt the whole request
+2. It will not influence normal request processing
 
+### Find Config
+
+Open source Nginx already has "NGX_HTTP_FIND_CONFIG_PHASE", which is designe
+to find 
+
+### Storage
+
+According to Nginx architecture, variable is a common ways for module
+comunication. For the convenience for decoupling the output ways, variable
+is a good choice.
+
+In order to manager easily, there must be a variable name scheme to:
+1. Identify the variable providing module.
+2. Add more varible as ngx_http_conf_debug_module supporting more and more
+   config debuging needs.
+
+Variable name starts with: $conf_debug_, follow by config name and property.
+For example:
+* $conf_debug_location_mode
+* $conf_debug_location_name
+* ...
+
+
+### Output
+
+ngx_http_conf_debug_module is used in to scene:
+1. Interrupt normal request
+2. Not Interrupt normal request
+
+Considering:
+1. Debug message need to places in http header becase http body is defined
+   by upstream and has no extendibility.
+2. Reusing current Nginx response editing ability is the best choice.
+
+User must use "add_header" directive to add debug message in response header.
+Header add by user is recommended to start with: X-Conf-Debug-.
+For example:
+```
+add_header X-Conf-Debug-Location-Mode $conf_debug_location_mode always;
+```
+
+"always" is needed becase in "Not interrupt normal request" scene, upstream 
+server may reseponse various of http status code, which may make add header
+failed
+
+By the way, in "Not interrupt notmal request" scene, we strongly recommend
+user to add some network isolation(for example: iptables) to prevent nginx
+sends the offline request to online server.
 
 ## Process View
+
+## Development View
 
 
 ## Physical View
