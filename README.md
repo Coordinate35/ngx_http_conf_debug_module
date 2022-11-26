@@ -47,7 +47,7 @@ Switch for interrupt mode. If opened, request will be intercept
 
 ---
 
-**Syntax**: conf_debug_interrupt_code *code*;
+**Syntax**: conf_debug_interrupt_status_code *code*;
 
 **Default**: 406
 

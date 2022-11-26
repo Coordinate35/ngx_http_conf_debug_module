@@ -132,6 +132,10 @@ Considering:
    by upstream and has no extendibility.
 2. Reusing current Nginx response editing ability is the best choice.
 
+If a request match a normal prefix mode location, such as "location / {}",
+"blank" will be set as variable's value because some middleware will remove the
+header when its value is "".
+
 User must use "add_header" directive to add debug message in response header.
 Header add by user is recommended to start with: X-Conf-Debug-.
 For example:
