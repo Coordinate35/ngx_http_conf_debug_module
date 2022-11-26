@@ -76,8 +76,41 @@ because:
 
 ### Find Config
 
-Open source Nginx already has "NGX_HTTP_FIND_CONFIG_PHASE", which is designe
-to find 
+Open source Nginx already has "NGX_HTTP_FIND_CONFIG_PHASE", which is designed
+to find target location when a http request comes. 
+
+#### Nginx location config storage
+
+For most scene consideration, we don't take nested location and @name location
+into account.
+
+Parsing and saving location config is impletmented in **ngx_http_core_location**
+function.
+location infomation store in clcf(ngx_http_core_loc_conf_t), core properties are 
+as followed:
+1. name
+2. exact_match
+3. noregex
+4. regex
+5. named(for @name scene, not cared)
+
+As Nginx doesn't have a data stucture to store location mode information, we need
+to find it through reduction. 
+Nginx has 5 location mode, and :
+1. =, exact_match == 1, noregex == 0, regex == NULL
+2. ~, exact_match == 0, noregex == 0, regex != NULL,
+   pcre_fullinfo(regex->regex->code, PCRE_INFO_OPTIONS) & PCRE_CASELESS == 0
+3. ~*, exact_match == 0, noregex == 0, regex != NULL
+   pcre_fullinfo(regex->regex->code, PCRE_INFO_OPTIONS) & PCRE_CASELESS == 1
+4. ^~, exact_match == 0, noregex == 1, regex == NULL
+5. <none>, exact_match == 0, noregex == 0, regex == NULL
+
+**The resule above base on assumption**: macro NGX_HTTP_CASELESS_FILESYSTEM hasn't
+defined(if defined, Nginx will take ~ as caseless)
+
+#### Nginx location matching rules
+
+Finding location's process is impletmented in **ngx_http_core_find_location** function.  
 
 ### Storage
 
