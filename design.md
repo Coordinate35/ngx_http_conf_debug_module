@@ -74,12 +74,7 @@ because:
 1. It may interrupt the whole request
 2. It will not influence normal request processing
 
-### Find Config
-
-Open source Nginx already has "NGX_HTTP_FIND_CONFIG_PHASE", which is designed
-to find target location when a http request comes. 
-
-#### Nginx location config storage
+### Nginx location config storage and find location config
 
 For most scene consideration, we don't take nested location and @name location
 into account.
@@ -107,10 +102,6 @@ Nginx has 5 location mode, and :
 
 **The resule above base on assumption**: macro NGX_HTTP_CASELESS_FILESYSTEM hasn't
 defined(if defined, Nginx will take ~ as caseless)
-
-#### Nginx location matching rules
-
-Finding location's process is impletmented in **ngx_http_core_find_location** function.  
 
 ### Storage
 
@@ -155,10 +146,3 @@ failed
 By the way, in "Not interrupt notmal request" scene, we strongly recommend
 user to add some network isolation(for example: iptables) to prevent nginx
 sends the offline request to online server.
-
-## Process View
-
-## Development View
-
-
-## Physical View
