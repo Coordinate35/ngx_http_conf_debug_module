@@ -2,11 +2,85 @@
 #include <ngx_config.h>
 
 /*
- * version: 0.1.0
+ * version: 1.0.0
  */
 
 
 #define NGX_HTTP_NOT_ACCEPTABLE 406
+
+
+extern ngx_module_t  ngx_http_proxy_module;
+
+
+typedef struct {
+    ngx_str_t                      key_start;
+    ngx_str_t                      schema;
+    ngx_str_t                      host_header;
+    ngx_str_t                      port;
+    ngx_str_t                      uri;
+} ngx_http_conf_debug_proxy_vars_t;
+/* should be same as ngx_http_proxy_vars_t in ngx_http_proxy_module.c */
+
+
+typedef struct {
+    ngx_array_t                   *flushes;
+    ngx_array_t                   *lengths;
+    ngx_array_t                   *values;
+    ngx_hash_t                     hash;
+} ngx_http_conf_debug_proxy_headers_t;
+/* should be same as ngx_http_proxy_headers_t in ngx_http_proxy_module.c */
+
+
+typedef struct {
+    ngx_http_upstream_conf_t       upstream;
+
+    ngx_array_t                   *body_flushes;
+    ngx_array_t                   *body_lengths;
+    ngx_array_t                   *body_values;
+    ngx_str_t                      body_source;
+
+    ngx_http_conf_debug_proxy_headers_t       headers;
+#if (NGX_HTTP_CACHE)
+    ngx_http_conf_debug_proxy_headers_t       headers_cache;
+#endif
+    ngx_array_t                   *headers_source;
+
+    ngx_array_t                   *proxy_lengths;
+    ngx_array_t                   *proxy_values;
+
+    ngx_array_t                   *redirects;
+    ngx_array_t                   *cookie_domains;
+    ngx_array_t                   *cookie_paths;
+    ngx_array_t                   *cookie_flags;
+
+    ngx_http_complex_value_t      *method;
+    ngx_str_t                      location;
+    ngx_str_t                      url;
+
+#if (NGX_HTTP_CACHE)
+    ngx_http_complex_value_t       cache_key;
+#endif
+
+    ngx_http_conf_debug_proxy_vars_t          vars;
+
+    ngx_flag_t                     redirect;
+
+    ngx_uint_t                     http_version;
+
+    ngx_uint_t                     headers_hash_max_size;
+    ngx_uint_t                     headers_hash_bucket_size;
+
+#if (NGX_HTTP_SSL)
+    ngx_uint_t                     ssl;
+    ngx_uint_t                     ssl_protocols;
+    ngx_str_t                      ssl_ciphers;
+    ngx_uint_t                     ssl_verify_depth;
+    ngx_str_t                      ssl_trusted_certificate;
+    ngx_str_t                      ssl_crl;
+    ngx_array_t                   *ssl_conf_commands;
+#endif
+} ngx_http_conf_debug_proxy_loc_conf_t;
+/* should be same as ngx_http_proxy_loc_conf_t in ngx_http_proxy_module.c */
 
 
 typedef struct {
@@ -23,6 +97,8 @@ static ngx_int_t ngx_http_conf_debug_postconfiguration(ngx_conf_t *cf);
 static ngx_int_t ngx_http_conf_debug_location_mode(ngx_http_request_t *r,
     ngx_http_variable_value_t *v, uintptr_t data);
 static ngx_int_t ngx_http_conf_debug_location_name(ngx_http_request_t *r,
+    ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_conf_debug_location_upstream(ngx_http_request_t *r,
     ngx_http_variable_value_t *v, uintptr_t data);
 static ngx_int_t ngx_http_conf_debug_handler(ngx_http_request_t *r);
 
@@ -41,6 +117,10 @@ static ngx_http_variable_t ngx_http_conf_debug_variables[] = {
     
     { ngx_string("conf_debug_location_name"), NULL,
       ngx_http_conf_debug_location_name,
+      0, 0, 0 },
+
+    { ngx_string("conf_debug_location_upstream"), NULL,
+      ngx_http_conf_debug_location_upstream,
       0, 0, 0 },
 
     { ngx_null_string, NULL, NULL, 0, 0, 0}
@@ -272,6 +352,38 @@ ngx_http_conf_debug_location_name(ngx_http_request_t *r, ngx_http_variable_value
 
     v->len = clcf->name.len;
     v->data = clcf->name.data;
+    v->valid = 1;
+    v->no_cacheable = 0;
+    v->not_found = 0;
+
+    return NGX_OK;
+}
+
+
+static ngx_int_t
+ngx_http_conf_debug_location_upstream(ngx_http_request_t *r, ngx_http_variable_value_t *v,
+    uintptr_t data)
+{
+    ngx_http_conf_debug_loc_conf_t        *cdlcf;
+    ngx_http_conf_debug_proxy_loc_conf_t  *cdplcf;
+
+    cdlcf = ngx_http_get_module_loc_conf(r, ngx_http_conf_debug_module);
+
+    if (!cdlcf->enabled) {
+        v->not_found = 1;
+        return NGX_OK;
+    }
+
+    cdplcf = ngx_http_get_module_loc_conf(r, ngx_http_proxy_module);
+
+    if (cdplcf->vars.host_header.len == 0
+        || cdplcf->vars.host_header.data == NULL) {
+        v->not_found = 1;
+        return NGX_OK;
+    }
+
+    v->len = cdplcf->vars.host_header.len;
+    v->data = cdplcf->vars.host_header.data;
     v->valid = 1;
     v->no_cacheable = 0;
     v->not_found = 0;
