@@ -5,6 +5,10 @@
  * version: 0.1.0
  */
 
+
+#define NGX_HTTP_NOT_ACCEPTABLE 406
+
+
 typedef struct {
     ngx_flag_t enabled;
     ngx_flag_t interrupt;
@@ -13,7 +17,7 @@ typedef struct {
 
 
 static void* ngx_http_conf_debug_create_loc_conf(ngx_conf_t *cf);
-static char* ngx_http_conf_debug_merge_loc_conf(ngx_conf_t *cf, void *perent, void child);
+static char* ngx_http_conf_debug_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child);
 static ngx_int_t ngx_http_conf_debug_preconfiguration(ngx_conf_t *cf);
 static ngx_int_t ngx_http_conf_debug_postconfiguration(ngx_conf_t *cf);
 static ngx_int_t ngx_http_conf_debug_location_mode(ngx_http_request_t *r,
@@ -23,11 +27,11 @@ static ngx_int_t ngx_http_conf_debug_location_name(ngx_http_request_t *r,
 static ngx_int_t ngx_http_conf_debug_handler(ngx_http_request_t *r);
 
 
-static ngx_http_conf_debug_locaiton_mode_exact = ngx_string("=");
-static ngx_http_conf_debug_location_mode_prefix_prior = ngx_string("^~");
-static ngx_http_conf_debug_location_mode_regular_case_insensitive = ngx_string("~*");
-static ngx_http_conf_debug_location_mode_regular_case_sensitive = ngx_string("~");
-static ngx_http_conf_debug_location_mode_prefix_normal = ngx_string("blank");
+static ngx_str_t ngx_http_conf_debug_location_mode_exact = ngx_string("=");
+static ngx_str_t ngx_http_conf_debug_location_mode_prefix_prior = ngx_string("^~");
+static ngx_str_t ngx_http_conf_debug_location_mode_regular_case_insensitive = ngx_string("~*");
+static ngx_str_t ngx_http_conf_debug_location_mode_regular_case_sensitive = ngx_string("~");
+static ngx_str_t ngx_http_conf_debug_location_mode_prefix_normal = ngx_string("blank");
 
 
 static ngx_http_variable_t ngx_http_conf_debug_variables[] = {
@@ -79,7 +83,7 @@ static ngx_http_module_t ngx_http_conf_debug_module_ctx = {
 
     ngx_http_conf_debug_create_loc_conf,   /* create location configuration */
     ngx_http_conf_debug_merge_loc_conf     /* merge location configuration */
-}
+};
 
 ngx_module_t ngx_http_conf_debug_module = {
     NGX_MODULE_V1,
@@ -102,7 +106,7 @@ ngx_http_conf_debug_create_loc_conf(ngx_conf_t *cf)
 {
     ngx_http_conf_debug_loc_conf_t *conf;
 
-    conf = ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_debug_loc_conf_t))；
+    conf = ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_debug_loc_conf_t));
     if (conf == NULL) {
         return NULL;
     }
@@ -116,14 +120,14 @@ ngx_http_conf_debug_create_loc_conf(ngx_conf_t *cf)
 
 
 static char*
-ngx_http_conf_debug_merge_loc_conf(ngx_conf_t *cf, void *perent, void child)
+ngx_http_conf_debug_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 {
     ngx_http_conf_debug_loc_conf_t  *prev = parent;
     ngx_http_conf_debug_loc_conf_t  *conf = child;
 
     ngx_conf_merge_value(conf->enabled, prev->enabled, 0);
     ngx_conf_merge_value(conf->interrupt, prev->interrupt, 0);
-    ngx_conf_merge_uint_value(conf->status_code, prev->status_code, NGX_NOT_ACCEPTABLE);
+    ngx_conf_merge_uint_value(conf->status_code, prev->status_code, NGX_HTTP_NOT_ACCEPTABLE);
 
     return NGX_CONF_OK;
 }
@@ -174,8 +178,9 @@ ngx_http_conf_debug_location_mode(ngx_http_request_t *r, ngx_http_variable_value
     ngx_http_core_loc_conf_t        *clcf;
     ngx_http_conf_debug_loc_conf_t  *cdlcf;
 
-    option = 0;
+    options = 0;
 
+    cdlcf = ngx_http_get_module_loc_conf(r, ngx_http_conf_debug_module);
     if (!cdlcf->enabled) {
         v->not_found = 1;
         return NGX_OK;
@@ -248,6 +253,8 @@ ngx_http_conf_debug_location_name(ngx_http_request_t *r, ngx_http_variable_value
 {
     ngx_http_core_loc_conf_t        *clcf;
     ngx_http_conf_debug_loc_conf_t  *cdlcf;
+
+    cdlcf = ngx_http_get_module_loc_conf(r, ngx_http_conf_debug_module);
 
     if (!cdlcf->enabled) {
         v->not_found = 1;
