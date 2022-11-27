@@ -1,5 +1,7 @@
 # Nginx Debug module
 
+version: 1.0.0
+
 ## Background
 
 Nginx is a widely used web server. However, when a web application become 
@@ -99,6 +101,13 @@ Nginx has 5 location mode, and :
    pcre_fullinfo(regex->regex->code, PCRE_INFO_OPTIONS) & PCRE_CASELESS == 1
 4. ^~, exact_match == 0, noregex == 1, regex == NULL
 5. <none>, exact_match == 0, noregex == 0, regex == NULL
+
+Since $proxy_host variable are not available until NGX_HTTP_CONTENT_PHASE, we
+need to get ngx_http_proxy_module configuration, which is not visible for 
+ngx_http_conf_debug_module. Therefore, we need to redefine a data structure to
+get proxy_host's value ahead.
+**Keey in mind**, redefined data structure must keep same as definition in 
+ngx_http_proxy_module.  
 
 **The resule above base on assumption**: macro NGX_HTTP_CASELESS_FILESYSTEM hasn't
 defined(if defined, Nginx will take ~ as caseless)

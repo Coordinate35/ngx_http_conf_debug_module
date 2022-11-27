@@ -1,5 +1,7 @@
 # ngx_http_conf_debug_module
 
+verion: 1.0.0
+
 The ngx_http_conf_debug_module module is used for debug nginx configuration.
 
 In debug mode, module will add the config infomation in a Nginx variable when
@@ -11,7 +13,8 @@ proxy_pass to upstream server(because we just want to test the config).Simultane
 **Attention**:
 1. In location scene:
    1. ~ and ~* 's accuracy rely on macro NGX_HTTP_CASELESS_FILESYSTEM hasn't defined
-   2. Nested location and @named location is not support
+   2. Nested location and @named location is not supported
+   3. location has been internal redirect(rewrite) is not supported
 
 ## Example configuration
 
@@ -21,8 +24,60 @@ http {
     conf_debug_enable on;
     conf_debug_interrupt on;
     conf_debug_interrupt_code 406;
+
+    add_header X-Conf-Debug-Location-Mode $conf_debug_location_mode always;
+    add_header X-Conf-Debug-Location-Name $conf_debug_location_name always;
+    add_header X-Conf-Debug-After-Rewrite $uri always;
+    add_header X-Conf-Debug-Location-Upstream $conf_debug_location_upstream always;
+
+    upstream local_8002 {
+        server 127.0.0.1:8002;
+    }
+
+    server {
+        listen 8001;
+
+        location = / {
+            proxy_pass http://local_8002;
+        }
+
+        location / {
+            proxy_pass http://local_8002;
+        }
+
+        location /documents/ {
+            proxy_pass http://local_8002;
+        }
+
+        location ^~ /images/ {
+            proxy_pass http://local_8002;
+        }
+
+        location ~* \.(gif|jpg|jpeg)$ {
+            proxy_pass http://local_8002;
+        }
+
+        location ~ \.Doc$ {
+            proxy_pass http://local_8002;
+        }
+
+        location ^~ /prefix/ {
+            rewrite /prefix/(.*) /$1 break;
+            proxy_pass http://local_8002;
+        }
+    }
 }
 
+```
+Result:
+
+![img](./example.png)
+
+## Installtion
+
+Just simply add a parameter when running configure command. Example:
+```
+./configure --add-module=<dir-you-save-the-repo>/ngx_http_conf_debug_module
 ```
 
 ## Directive
@@ -61,3 +116,5 @@ status code default is 406.
 $conf_debug_location_mode: The request-matched location's mode
 
 $conf_debug_location_name: The request-matched location's name
+
+$conf_debug_location_upstream: The request-matched location's upstream
