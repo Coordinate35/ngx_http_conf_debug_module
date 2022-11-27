@@ -193,12 +193,14 @@ ngx_http_conf_debug_location_mode(ngx_http_request_t *r, ngx_http_variable_value
         v->valid = 1;
         v->len = ngx_http_conf_debug_location_mode_exact.len;
         v->data = ngx_http_conf_debug_location_mode_exact.data;
+        goto matched;
     }
 
     if (clcf->noregex) {
         v->valid = 1;
         v->len = ngx_http_conf_debug_location_mode_prefix_prior.len;
         v->data = ngx_http_conf_debug_location_mode_prefix_prior.data;
+        goto matched;
     }
 
     if (
@@ -211,6 +213,7 @@ ngx_http_conf_debug_location_mode(ngx_http_request_t *r, ngx_http_variable_value
         v->valid = 1;
         v->len = ngx_http_conf_debug_location_mode_prefix_normal.len;
         v->data = ngx_http_conf_debug_location_mode_prefix_normal.data;
+        goto matched;
     }
 
 #if (NGX_PCRE)
@@ -229,16 +232,20 @@ ngx_http_conf_debug_location_mode(ngx_http_request_t *r, ngx_http_variable_value
         v->valid = 1;
         v->len = ngx_http_conf_debug_location_mode_regular_case_insensitive.len;
         v->data = ngx_http_conf_debug_location_mode_regular_case_insensitive.data;
+        goto matched;
     } else {
         v->valid = 1;
         v->len = ngx_http_conf_debug_location_mode_regular_case_sensitive.len;
         v->data = ngx_http_conf_debug_location_mode_regular_case_sensitive.data;
+        goto matched;
     }
 #endif
 
     if (!v->valid) {
         return NGX_ERROR;
     }
+
+matched:
 
     v->no_cacheable = 0;
     v->not_found = 0;
