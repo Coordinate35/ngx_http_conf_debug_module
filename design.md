@@ -38,7 +38,7 @@ complicated, it is a nightmare to maintain the Nginx configuration. For example:
 
 Especially, when Nginx is used as a proxy
 
-Online mode: Whether our module working or not, it should not impact on Nginx's normal function.
+Debug mode: Whether our module working or not, it should not impact on Nginx's normal function.
 
 ```
                    -----
@@ -56,7 +56,7 @@ or
        conf info   -----
 ```
 
-Development mode:
+Interrupt mode:
 ```
        request     -----
  O   -----------> |     |   request     ----------
@@ -83,7 +83,7 @@ into account.
 
 Parsing and saving location config is impletmented in **ngx_http_core_location**
 function.
-location infomation store in clcf(ngx_http_core_loc_conf_t), core properties are 
+location infomation is stored in clcf(ngx_http_core_loc_conf_t), core properties are 
 as followed:
 1. name
 2. exact_match
@@ -91,7 +91,7 @@ as followed:
 4. regex
 5. named(for @name scene, not cared)
 
-As Nginx doesn't have a data stucture to store location mode information, we need
+As Nginx doesn't have any data stucture to store location mode information, we need
 to find it through reduction. 
 Nginx has 5 location mode, and :
 1. =, exact_match == 1, noregex == 0, regex == NULL
@@ -109,13 +109,13 @@ get proxy_host's value ahead.
 **Keey in mind**, redefined data structure must keep same as definition in 
 ngx_http_proxy_module.  
 
-**The resule above base on assumption**: macro NGX_HTTP_CASELESS_FILESYSTEM hasn't
-defined(if defined, Nginx will take ~ as caseless)
+**The resule above base on assumption**: macro NGX_HTTP_CASELESS_FILESYSTEM 
+hasn't been defined(if defined, Nginx will take ~ as caseless)
 
 ### Storage
 
-According to Nginx architecture, variable is a common ways for module
-comunication. For the convenience for decoupling the output ways, variable
+According to Nginx architecture, variable is a common ways for comunication
+between modules. For the convenience for decoupling the output ways, variable
 is a good choice.
 
 In order to manager easily, there must be a variable name scheme to:
@@ -158,4 +158,4 @@ failed
 
 By the way, in "Not interrupt notmal request" scene, we strongly recommend
 user to add some network isolation(for example: iptables) to prevent nginx
-sends the offline request to online server.
+from sending the offline request to online server.

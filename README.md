@@ -2,19 +2,19 @@
 
 verion: 1.0.0
 
-The ngx_http_conf_debug_module module is used for debug nginx configuration.
+The ngx_http_conf_debug_module module is used for debuging nginx configuration.
 
 In debug mode, module will add the config infomation in a Nginx variable when
 a request incoming, which will affect the request processing.
 
 In interrupt mode, module will intercept the request to prevent it from being
-proxy_pass to upstream server(because we just want to test the config).Simultaneous limitation of access by address and by password is controlled by the satisfy directive
+proxy_pass to upstream server(because we just want to test the config).Simultaneous limitation of access by address and by password is controlled by the [satisfy](https://nginx.org/en/docs/http/ngx_http_core_module.html#satisfy) directive
 
 **Attention**:
 1. In location scene:
-   1. ~ and ~* 's accuracy rely on macro NGX_HTTP_CASELESS_FILESYSTEM hasn't defined
+   1. ~ and ~* 's accuracy rely on macro NGX_HTTP_CASELESS_FILESYSTEM hasn't been defined
    2. Nested location and @named location is not supported
-   3. location has been internal redirect(rewrite) is not supported
+   3. Location has been internal redirected(rewrite) is not supported
 
 ## Example configuration
 
@@ -75,7 +75,7 @@ Result:
 
 ## Installtion
 
-Just simply add a parameter when running configure command. Example:
+Just simply add a parameter for "configure" command when building Nginx from source code. Example:
 ```
 ./configure --add-module=<dir-you-save-the-repo>/ngx_http_conf_debug_module
 ```
