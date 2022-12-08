@@ -12,7 +12,7 @@ proxy_pass to upstream server(because we just want to test the config).Simultane
 
 **Attention**:
 1. In location scene:
-   1. ~ and ~* 's accuracy rely on macro NGX_HTTP_CASELESS_FILESYSTEM hasn't been defined
+   1. ~ and ~* 's accuracy rely on macro NGX_HTTP_CASELESS_FILESYSTEM hasn't been defined(On darwin, cygwin and win32 OS)
    2. Nested location and @named location is not supported
    3. Location has been internal redirected(rewrite) is not supported
 
