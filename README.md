@@ -73,7 +73,7 @@ Result:
 
 ![img](./example.png)
 
-## Installtion
+## Installation
 
 Just simply add a parameter for "configure" command when building Nginx from source code. Example:
 ```
